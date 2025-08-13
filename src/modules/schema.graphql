@@ -1,0 +1,10 @@
+type Query {
+  messages: [Message!]!
+  user: [User!],
+  post(id: ID!): Post!
+  comments(id:ID!):Comment!
+}
+
+type Mutation {
+  postMessage(content: String!, author: String!): Message!
+}

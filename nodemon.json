@@ -1,0 +1,6 @@
+{
+  "watch": ["src"],
+  "ignore": ["node_modules", "build", "logs", "tmp"],
+  "ext": "js,json,graphql",
+  "legacyWatch": true
+}
