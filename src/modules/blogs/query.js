@@ -3,17 +3,17 @@ import { blogs } from "./dataSource.js";
 export const blogQueryResolvers = {
   user: () => blogs,
   post: (_, { id }) => {
-    for (let user of blogs) {
-      const found = user.posts.find((p) => p.id === id);
-      if (found) return found;
+    for (let blog of blogs) {
+      const userPost = blog.posts.find((p) => p.id === id);
+      if (userPost) return userPost;
     }
     return null;
   },
-  comments:(_,{id}) => {
-    for (let user of blogs) {
-      const found = user.comments.find((p) => p.id === id);
-      if (found) return found;
+  comments: (_, { id }) => {
+    for (let blog of blogs) {
+      const userComment = blog.comments.find((p) => p.id === id);
+      if (userComment) return userComment;
     }
     return null;
-  }
+  },
 };
