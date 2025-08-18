@@ -1,10 +1,20 @@
+enum SortOrder {
+  ASC
+  DESC
+}
+
 type Query {
   messages: [Message!]!
-  user: [User!],
-  post(id: ID!): Post!
-  comments(id:ID!):Comment!
+  user: [UserResult!]
+  post(id: ID!): PostResult!
+  comments(id: ID!): CommentResult!
+  paginatedPosts(page: Int!, limit: Int!, sortByDate: SortOrder): [Post!]!
 }
 
 type Mutation {
   postMessage(content: String!, author: String!): Message!
+  updateUser(id: ID!, name: String, email: String): UserResult
+  deleteComment(id: ID!): CommentResult
+  addPost(userId: ID!, title: String, content: String): PostResult!
+  addComment(postId: ID!, userId: ID!, text: String): CommentResult!
 }
