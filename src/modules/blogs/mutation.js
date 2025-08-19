@@ -1,33 +1,33 @@
 export const blogMutationResolvers = {
   addUser: async (_, { name, email }, { dataSources }) => {
-  const models = dataSources.blog.models;
+    const models = dataSources.blog.models;
 
-  const existing = await models.User.findOne({ email });
-  if (existing) {
+    const existing = await models.User.findOne({ email });
+    if (existing) {
+      return {
+        __typename: "Error",
+        message: "User with this email already exists",
+        code: 400,
+      };
+    }
+
+    const user = new models.User({
+      name,
+      email,
+      posts: [],
+      comments: [],
+    });
+
+    await user.save();
+
     return {
-      __typename: "Error",
-      message: "User with this email already exists",
-      code: 400,
+      __typename: "User",
+      ...user.toObject(),
     };
-  }
+  },
+  updateUser: async (_, { id, name, email }, { dataSources }) => {
+    const models = dataSources.blog.models;
 
-  const user = new models.User({
-    name,
-    email,
-    posts: [],
-    comments: [],
-  });
-
-  await user.save();
-
-  return {
-    __typename: "User",
-    ...user.toObject(),
-  };
-}
-,
-
-  updateUser: async (_, { id, name, email }, { models }) => {
     const user = await models.User.findById(id);
     if (!user) {
       return {
@@ -47,7 +47,8 @@ export const blogMutationResolvers = {
     };
   },
 
-  deleteComment: async (_, { id }, { models }) => {
+  deleteComment: async (_, { id }, { dataSources }) => {
+    const models = dataSources.blog.models;
     const comment = await models.Comment.findById(id)
       .populate("author")
       .populate("post");
@@ -77,8 +78,10 @@ export const blogMutationResolvers = {
     };
   },
 
-  addPost: async (_, { userId, title, content }, { models }) => {
+  addPost: async (_, { userId, title, content }, { dataSources }) => {
+    const models = dataSources.blog.models;
     const user = await models.User.findById(userId);
+
     if (!user) {
       return {
         __typename: "Error",
@@ -100,15 +103,16 @@ export const blogMutationResolvers = {
     user.posts.push(post._id);
     await user.save();
 
-    const populatedPost = await post.populate("author");
-
+    const populatedPost = await models.Post.findById(post._id).populate("author");
+    console.log(populatedPost);
     return {
       __typename: "Post",
       ...populatedPost.toObject(),
     };
   },
 
-  addComment: async (_, { postId, userId, text }, { models }) => {
+  addComment: async (_, { postId, userId, text }, { dataSources }) => {
+    const models = dataSources.blog.models;
     const user = await models.User.findById(userId);
     if (!user) {
       return {
@@ -135,14 +139,13 @@ export const blogMutationResolvers = {
 
     await comment.save();
 
-    // Add references
     user.comments.push(comment._id);
     post.comments.push(comment._id);
 
     await user.save();
     await post.save();
 
-    const populatedComment = await comment.populate("author").populate("post");
+    const populatedComment = await models.Comment.findById(comment._id).populate("author").populate("post");
 
     return {
       __typename: "Comment",
