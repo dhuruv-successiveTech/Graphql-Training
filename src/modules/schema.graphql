@@ -12,6 +12,7 @@ type Query {
 }
 
 type Mutation {
+  addUser(name:String!,email:String!):UserResult!
   postMessage(content: String!, author: String!): Message!
   updateUser(id: ID!, name: String, email: String): UserResult
   deleteComment(id: ID!): CommentResult

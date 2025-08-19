@@ -1,10 +1,10 @@
 import { sleep } from "../../utils/delay.js";
-
 export const blogQueryResolvers = {
-  user: async (_, __, context) => {
-    const blogs = context.blogContext;
+  user: async (_, __, { dataSources }) => {
     await sleep(1000);
-    if (blogs.length === 0) {
+    const users = await dataSources.blog.getUsers();
+
+    if (!users || users.length === 0) {
       return [
         {
           __typename: "Error",
@@ -13,66 +13,60 @@ export const blogQueryResolvers = {
         },
       ];
     }
-    return blogs.map((user) => ({
+
+    return users.map((user) => ({
       __typename: "User",
-      ...user,
+      ...user.toObject(),
     }));
   },
-  post: async (_, { id }, context) => {
-    const blogs = context.blogContext;
 
+  post: async (_, { id }, { dataSources }) => {
     await sleep(800);
-    for (let blog of blogs) {
-      const userPost = blog.posts.find((p) => p.id === id);
-      if (userPost) {
-        return {
-          __typename: "Post",
-          ...userPost,
-        };
-      }
+    const post = await dataSources.blog.getPostById(id);
+
+    if (!post) {
+      return {
+        __typename: "Error",
+        message: `Post with id '${id}' not found.`,
+        code: 404,
+      };
     }
+
     return {
-      __typename: "Error",
-      message: `Post with id '${id}' not found.`,
-      code: 404,
+      __typename: "Post",
+      ...post.toObject(),
     };
   },
-  comments: async (_, { id }, context) => {
+
+  comments: async (_, { id }, { dataSources }) => {
     await sleep(500);
-    const blogs = context.blogContext;
-    for (let blog of blogs) {
-      const userComment = blog.comments.find((c) => c.id === id);
-      if (userComment) {
-        return {
-          __typename: "Comment",
-          ...userComment,
-        };
-      }
+    const comment = await dataSources.blog.getCommentById(id);
+
+    if (!comment) {
+      return {
+        __typename: "Error",
+        message: `Comment with id '${id}' not found.`,
+        code: 404,
+      };
     }
+
     return {
-      __typename: "Error",
-      message: `Comment with id '${id}' not found.`,
-      code: 404,
+      __typename: "Comment",
+      ...comment.toObject(),
     };
   },
 
-  paginatedPosts: async (_, { page, limit, sortByDate }, context) => {
+  paginatedPosts: async (_, { page, limit, sortByDate }, { dataSources }) => {
     await sleep(800);
-    const blogs = context.blogContext;
-    let allPosts = blogs.flatMap((user) => user.posts);
+    const posts = await dataSources.blog.getPaginatedPosts({
+      page,
+      limit,
+      sortByDate,
+    });
 
-
-    if (sortByDate) {
-      allPosts.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return sortByDate === "ASC" ? dateA - dateB : dateB - dateA;
-      });
-    }
-
-    const start = (page - 1) * limit;
-    const end = start + limit;
-
-    return allPosts.slice(start, end);
+    return posts.map((post) => ({
+      __typename: "Post",
+      ...post.toObject(),
+    }));
   },
 };
