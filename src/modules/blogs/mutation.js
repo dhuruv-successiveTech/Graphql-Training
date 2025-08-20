@@ -1,32 +1,63 @@
-export const blogMutationResolvers = {
-  addUser: async (_, { name, email }, { dataSources }) => {
-    const models = dataSources.blog.models;
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-    const existing = await models.User.findOne({ email });
-    if (existing) {
+const jwtSecret = "dcr295";
+export const blogMutationResolvers = {
+  register: async (_, { name, email, password }, { models }) => {
+    // const models = dataSources.blog.models;
+    const isExist = await models.User.findOne({ email });
+    if (isExist) {
       return {
         __typename: "Error",
-        message: "User with this email already exists",
+        message: "Email already registered",
         code: 400,
       };
     }
-
-    const user = new models.User({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new models.User({
       name,
       email,
+      password: hashedPassword,
       posts: [],
       comments: [],
     });
-
-    await user.save();
-
+    await newUser.save();
     return {
-      __typename: "User",
-      ...user.toObject(),
+      __typename: "AuthPayload",
+      user: newUser.toObject(),
     };
   },
-  updateUser: async (_, { id, name, email }, { dataSources }) => {
-    const models = dataSources.blog.models;
+  login: async (_, { email, password }, { models }) => {
+
+    const user = await models.User.findOne({ email });
+    if (!user) {
+      return {
+        __typename: "Error",
+        message: "Invalid credentials",
+        code: 401,
+      };
+    }
+    
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return {
+        __typename: "Error",
+        message: "Invalid credentials",
+        code: 401,
+      };
+    }
+
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "7d",
+    });
+
+    return {
+      __typename: "AuthPayload",
+      token,
+      user: user.toObject(),
+    };
+  },
+  updateUser: async (_, { id, name, email }, { models }) => {
 
     const user = await models.User.findById(id);
     if (!user) {
@@ -47,8 +78,7 @@ export const blogMutationResolvers = {
     };
   },
 
-  deleteComment: async (_, { id }, { dataSources }) => {
-    const models = dataSources.blog.models;
+  deleteComment: async (_, { id }, { models }) => {
     const comment = await models.Comment.findById(id)
       .populate("author")
       .populate("post");
@@ -78,8 +108,7 @@ export const blogMutationResolvers = {
     };
   },
 
-  addPost: async (_, { userId, title, content }, { dataSources }) => {
-    const models = dataSources.blog.models;
+  addPost: async (_, { userId, title, content }, { models }) => {
     const user = await models.User.findById(userId);
 
     if (!user) {
@@ -103,16 +132,16 @@ export const blogMutationResolvers = {
     user.posts.push(post._id);
     await user.save();
 
-    const populatedPost = await models.Post.findById(post._id).populate("author");
-    console.log(populatedPost);
+    const populatedPost = await models.Post.findById(post._id).populate(
+      "author"
+    );
     return {
       __typename: "Post",
       ...populatedPost.toObject(),
     };
   },
 
-  addComment: async (_, { postId, userId, text }, { dataSources }) => {
-    const models = dataSources.blog.models;
+  addComment: async (_, { postId, userId, text }, { models, pubsub }) => {
     const user = await models.User.findById(userId);
     if (!user) {
       return {
@@ -145,8 +174,13 @@ export const blogMutationResolvers = {
     await user.save();
     await post.save();
 
-    const populatedComment = await models.Comment.findById(comment._id).populate("author").populate("post");
+    const populatedComment = await models.Comment.findById(comment._id)
+      .populate("author")
+      .populate("post");
 
+    pubsub.publish("COMMENT_POSTED", {
+      commentPosted: populatedComment,
+    });
     return {
       __typename: "Comment",
       ...populatedComment.toObject(),

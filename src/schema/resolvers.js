@@ -10,6 +10,10 @@ export const resolvers = {
     ...messageModule.Mutation,
     ...blogModule.Mutation,
   },
+  Subscription: {
+    ...messageModule.Subscription,
+    ...blogModule.Subscription
+  },
   Post: {
     author: async (post, _, { dataSources }) => {
       return await dataSources.blog.models.User.findById(post.author);

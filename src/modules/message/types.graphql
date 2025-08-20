@@ -6,3 +6,9 @@ type Message {
   title:String!
 }
 
+type Error {
+  message: String!
+  code: Int
+}
+
+union MessageResult = Message | Error
