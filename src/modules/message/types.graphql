@@ -1,10 +1,11 @@
 type Message {
   id: ID!
   content: String!
-  author: String!
+  author: User!
   createdAt: String!
   title:String!
 }
+
 
 type Error {
   message: String!

@@ -28,6 +28,12 @@ type AuthPayload {
   token:String
 }
 
+type UserPresence {
+  userId: ID!
+  name: String!
+  status: String!  # "JOINED" or "LEFT"
+}
+
 type Error {
   message: String!
   code: Int

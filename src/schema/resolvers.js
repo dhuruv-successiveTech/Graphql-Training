@@ -38,4 +38,9 @@ export const resolvers = {
       return await dataSources.blog.models.Comment.find({ author: user._id });
     },
   },
+  Message:{
+    author: async (message, _, { dataSources }) => {
+      return await dataSources.blog.models.User.findById(message.author);
+    },
+  }
 };

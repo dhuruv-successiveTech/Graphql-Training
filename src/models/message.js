@@ -1,4 +1,3 @@
-import { UniqueTypeNamesRule } from "graphql";
 import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({

@@ -28,7 +28,6 @@ export const blogMutationResolvers = {
     };
   },
   login: async (_, { email, password }, { models }) => {
-
     const user = await models.User.findOne({ email });
     if (!user) {
       return {
@@ -37,7 +36,7 @@ export const blogMutationResolvers = {
         code: 401,
       };
     }
-    
+
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
       return {
@@ -48,7 +47,7 @@ export const blogMutationResolvers = {
     }
 
     const token = jwt.sign({ userId: user._id }, jwtSecret, {
-      expiresIn: "7d",
+      expiresIn: "1d",
     });
 
     return {
@@ -58,7 +57,6 @@ export const blogMutationResolvers = {
     };
   },
   updateUser: async (_, { id, name, email }, { models }) => {
-
     const user = await models.User.findById(id);
     if (!user) {
       return {
@@ -91,7 +89,6 @@ export const blogMutationResolvers = {
       };
     }
 
-    // Remove comment from user and post
     await models.User.findByIdAndUpdate(comment.author._id, {
       $pull: { comments: comment._id },
     });
