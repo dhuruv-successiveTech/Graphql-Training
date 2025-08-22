@@ -256,7 +256,6 @@ export async function createExpressServer() {
     })
   );
 
-  // WebSocket server for subscriptions
   const wsServer = new WebSocketServer({
     server: httpServer,
     path: "/graphql",
@@ -332,6 +331,7 @@ export async function createExpressServer() {
   useServer(
     {
       schema,
+
       onConnect: async (ctx) => {
         const authHeader = ctx.connectionParams?.authorization || "";
         const token = authHeader.split(" ")[1];

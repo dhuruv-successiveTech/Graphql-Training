@@ -13,13 +13,13 @@ type Query {
 
 type Mutation {
   postMessage(content: String!): MessageResult!
-  updateUser(id: ID!, name: String, email: String): UserResult
+  updateUser(name: String, email: String): UserResult
   deleteComment(id: ID!): CommentResult
   addPost(userId: ID!, title: String, content: String): PostResult!
   addComment(postId: ID!, userId: ID!, text: String): CommentResult!
   register(name: String!, email: String!, password: String!): AuthPayloadResult
   login(email: String!, password: String!): AuthPayloadResult
-  messageHistory:[MessageResult]
+  messageHistory: [MessageResult]
 }
 
 type Subscription {
