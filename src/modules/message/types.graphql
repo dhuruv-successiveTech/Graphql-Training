@@ -2,6 +2,7 @@ type Message {
   id: ID!
   content: String!
   author: User!
+  recipent:User!
   createdAt: String!
   title:String!
 }

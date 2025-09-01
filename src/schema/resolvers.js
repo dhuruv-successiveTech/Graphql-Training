@@ -12,7 +12,7 @@ export const resolvers = {
   },
   Subscription: {
     ...messageModule.Subscription,
-    ...blogModule.Subscription
+    ...blogModule.Subscription,
   },
   Post: {
     author: async (post, _, { dataSources }) => {
@@ -38,9 +38,13 @@ export const resolvers = {
       return await dataSources.blog.models.Comment.find({ author: user._id });
     },
   },
-  Message:{
-    author: async (message, _, { dataSources }) => {
-      return await dataSources.blog.models.User.findById(message.author);
+  Message: {
+    author: async (message, _, { models }) => {
+   
+      return await models.User.findById(message.author);
     },
-  }
+    recipent: async (message, _, { models }) => {
+      return await models.User.findById(message.recipent);
+    },
+  },
 };

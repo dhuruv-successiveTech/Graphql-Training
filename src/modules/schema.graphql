@@ -6,20 +6,20 @@ enum SortOrder {
 type Query {
   messages: [MessageResult!]!
   user: [UserResult!]
+  messageHistory: [MessageResult]
   post(id: ID!): PostResult!
   comments(id: ID!): CommentResult!
   paginatedPosts(page: Int!, limit: Int!, sortByDate: SortOrder): [Post!]!
 }
 
 type Mutation {
-  postMessage(content: String!): MessageResult!
-  updateUser(id: ID!, name: String, email: String): UserResult
+  postMessage(content: String!,recipent:ID!): MessageResult!
+  updateUser(name: String, email: String): UserResult
   deleteComment(id: ID!): CommentResult
   addPost(userId: ID!, title: String, content: String): PostResult!
   addComment(postId: ID!, userId: ID!, text: String): CommentResult!
   register(name: String!, email: String!, password: String!): AuthPayloadResult
   login(email: String!, password: String!): AuthPayloadResult
-  messageHistory:[MessageResult]
 }
 
 type Subscription {
