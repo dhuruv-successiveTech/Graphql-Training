@@ -1,3 +1,4 @@
+import { sleep } from "../../utils/delay.js";
 export const blogQueryResolvers = {
   user: async (_, __, { dataSources }) => {
     await sleep(1000);
@@ -53,5 +54,19 @@ export const blogQueryResolvers = {
       __typename: "Comment",
       ...comment.toObject(),
     };
-  }
+  },
+
+  paginatedPosts: async (_, { page, limit, sortByDate }, { dataSources }) => {
+    await sleep(800);
+    const posts = await dataSources.blog.getPaginatedPosts({
+      page,
+      limit,
+      sortByDate,
+    });
+
+    return posts.map((post) => ({
+      __typename: "Post",
+      ...post.toObject(),
+    }));
+  },
 };

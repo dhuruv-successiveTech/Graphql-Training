@@ -1,41 +1,3 @@
-// export const blogs = [
-//   {
-//     id: "u1",
-//     name: "John Doe",
-//     email: "john.doe@example.com",
-//     posts: [
-//       {
-//         id: "p1",
-//         title: "Getting Started with GraphQL",
-//         content: "GraphQL is a query language for your API...",
-//         comments: [
-//           {
-//             id: "c1",
-//             text: "Great introduction!",
-//             author: {
-//               id: "u2",
-//               name: "Jane Smith",
-//               email: "jane.smith@example.com",
-//             },
-//           },
-//         ],
-//       },
-//     ],
-//     comments: [
-//       {
-//         id: "c2",
-//         text: "Thanks for the insights!",
-//         post: {
-//           id: "p2",
-//           title: "Advanced GraphQL Tips",
-//           content: "In this post, we explore advanced GraphQL patterns...",
-//         },
-//       },
-//     ],
-//   },
-// ];
-
-
 
 export class BlogDataSource {
   constructor({ models }) {
@@ -54,5 +16,14 @@ export class BlogDataSource {
     return await this.models.Comment.findById(id).populate("author").populate("post");
   }
 
+  async getPaginatedPosts({ page, limit, sortByDate }) {
+    const sort = sortByDate ? { date: sortByDate === "ASC" ? 1 : -1 } : {};
+    return await this.models.Post.find()
+      .sort(sort)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("author")
+      .populate("comments");
+  }
 
 }
