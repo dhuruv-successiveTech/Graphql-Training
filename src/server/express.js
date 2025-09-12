@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 66a7fd3c874ff8459af5df464732a7eebfddef5e
 import http from "http";
 import express from "express";
 import { ApolloServer } from "@apollo/server";
@@ -73,7 +77,6 @@ export async function createExpressServer() {
     })
   );
 
-  // WebSocket server for subscriptions
   const wsServer = new WebSocketServer({
     server: httpServer,
     path: "/graphql",
@@ -82,6 +85,7 @@ export async function createExpressServer() {
   useServer(
     {
       schema,
+<<<<<<< HEAD
        context: async () => {
         const blogDataSource = new BlogDataSource({
           models: { User, Post, Comment, Message },
@@ -96,6 +100,9 @@ export async function createExpressServer() {
           models: { User, Post, Comment, Message },
         };
       },
+=======
+
+>>>>>>> 66a7fd3c874ff8459af5df464732a7eebfddef5e
       onConnect: async (ctx) => {
         const authHeader = ctx.connectionParams?.authorization || "";
         const token = authHeader.split(" ")[1];

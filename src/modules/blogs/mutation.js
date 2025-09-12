@@ -56,13 +56,22 @@ export const blogMutationResolvers = {
       user: user.toObject(),
     };
   },
-  updateUser: async (_, { id, name, email }, { models }) => {
-    const user = await models.User.findById(id);
+  updateUser: async (_, { name, email }, { models, userId }) => {
+    console.log("userId",userId);
+    
+    const user = await models.User.findById(userId);
     if (!user) {
       return {
         __typename: "Error",
         message: "User not found",
         code: 404,
+      };
+    }
+    if (user.role !== "ADMIN") {
+      return {
+        __typename: "Error",
+        message: "User not Authorised",
+        code: 403,
       };
     }
 
