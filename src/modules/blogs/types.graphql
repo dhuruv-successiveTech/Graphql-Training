@@ -2,6 +2,7 @@ type User {
   id: ID!
   name: String!
   email: String!
+  password:String
   posts: [Post!]!
   comments: [Comment!]!
 }
@@ -22,6 +23,17 @@ type Comment {
   post: Post!
 }
 
+type AuthPayload {
+  user: User!
+  token:String
+}
+
+type UserPresence {
+  userId: ID!
+  name: String!
+  status: String!  # "JOINED" or "LEFT"
+}
+
 type Error {
   message: String!
   code: Int
@@ -30,3 +42,4 @@ type Error {
 union PostResult = Post | Error
 union UserResult = User | Error
 union CommentResult = Comment | Error
+union AuthPayloadResult = AuthPayload | Error

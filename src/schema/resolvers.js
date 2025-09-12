@@ -10,6 +10,10 @@ export const resolvers = {
     ...messageModule.Mutation,
     ...blogModule.Mutation,
   },
+  Subscription: {
+    ...messageModule.Subscription,
+    ...blogModule.Subscription
+  },
   Post: {
     author: async (post, _, { dataSources }) => {
       return await dataSources.blog.models.User.findById(post.author);
@@ -34,4 +38,9 @@ export const resolvers = {
       return await dataSources.blog.models.Comment.find({ author: user._id });
     },
   },
+  Message:{
+    author: async (message, _, { dataSources }) => {
+      return await dataSources.blog.models.User.findById(message.author);
+    },
+  }
 };

@@ -4,7 +4,7 @@ enum SortOrder {
 }
 
 type Query {
-  messages: [Message!]!
+  messages: [MessageResult!]!
   user: [UserResult!]
   post(id: ID!): PostResult!
   comments(id: ID!): CommentResult!
@@ -12,10 +12,18 @@ type Query {
 }
 
 type Mutation {
-  addUser(name:String!,email:String!):UserResult!
-  postMessage(content: String!, author: String!): Message!
-  updateUser(id: ID!, name: String, email: String): UserResult
+  postMessage(content: String!): MessageResult!
+  updateUser(name: String, email: String): UserResult
   deleteComment(id: ID!): CommentResult
   addPost(userId: ID!, title: String, content: String): PostResult!
   addComment(postId: ID!, userId: ID!, text: String): CommentResult!
+  register(name: String!, email: String!, password: String!): AuthPayloadResult
+  login(email: String!, password: String!): AuthPayloadResult
+  messageHistory: [MessageResult]
+}
+
+type Subscription {
+  messagePosted: Message!
+  commentPosted: Comment!
+  userPresence: UserPresence!
 }
