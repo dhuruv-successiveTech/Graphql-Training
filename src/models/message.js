@@ -14,6 +14,11 @@ const messageSchema = new mongoose.Schema({
     ref: "BlogUser",
     required: true,
   },
+  recipent:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BlogUser",
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

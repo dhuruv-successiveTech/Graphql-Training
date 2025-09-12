@@ -1,5 +1,5 @@
 export const messageMutationResolvers = {
-  postMessage: async (_, { content }, { pubsub, models, userId }) => {
+  postMessage: async (_, { content, recipent }, { pubsub, models, userId }) => {
     if (!userId) {
       return {
         __typename: "Error",
@@ -20,10 +20,12 @@ export const messageMutationResolvers = {
     const newMessage = new models.Message({
       content,
       author: user._id,
+      recipent,
       createdAt: new Date().toISOString(),
       title: `this is title`,
     });
     await newMessage.save();
+
     pubsub.publish("MESSAGE_POSTED", {
       messagePosted: newMessage,
     });
@@ -32,19 +34,5 @@ export const messageMutationResolvers = {
       __typename: "Message",
       ...newMessage.toObject(),
     };
-  },
-  messageHistory: async (_, __, { models, userId }) => {
-    if (!userId) {
-      return {
-        __typename: "Error",
-        message: "User id not found",
-      };
-    }
-    const messages = await models.Message.find({ author: userId });
-
-    return messages.map((message) => ({
-      __typename: "Message",
-      ...message.toObject(),
-    }));
   },
 };

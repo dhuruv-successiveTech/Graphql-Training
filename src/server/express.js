@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 
+>>>>>>> 66a7fd3c874ff8459af5df464732a7eebfddef5e
 import http from "http";
 import express from "express";
 import { ApolloServer } from "@apollo/server";
@@ -38,7 +41,9 @@ export async function createExpressServer() {
 
   const getUserToken = async (req) => {
     try {
-      const token = req.headers.authorization;
+       
+      const token = req.headers.authorization.split(" ")[1];
+    
       if (!token) return null;
 
       const decoded = jwt.verify(token, jwtSecret);
@@ -77,77 +82,27 @@ export async function createExpressServer() {
     path: "/graphql",
   });
 
-  //   useServer(
-  //     {
-  //       schema,
-  //       onConnect: async (ctx) => {
-  //         const authHeader = ctx.connectionParams?.authorization || "";
-  //         const token = authHeader.split(" ")[1];
-  //         let user = null;
-
-  //         if (token) {
-  //           try {
-  //             const decoded = jwt.verify(token, jwtSecret);
-  //             user = await User.findById(decoded.userId);
-  //           } catch (err) {
-  //             console.error("Invalid token",err);
-  //             return false;
-  //           }
-  //         }
-
-  //         if (!user) {
-  //           return false;
-  //         }
-
-  //         // Use a unique key for this connection — fallback to websocket key header
-  //         const connectionKey =
-  //           ctx.connectionParams.connectionId ||
-  //           ctx.extra.request.headers["sec-websocket-key"];
-
-  //         activeUsers.set(connectionKey, user);
-
-  //         pubsub.publish("USER_PRESENCE", {
-  //           userPresence: {
-  //             userId: user.id,
-  //             name: user.name,
-  //             status: "JOINED",
-  //           },
-  //         });
-
-  //         return {
-  //           userId: user.id,
-  //           user,
-  //           pubsub,
-  //         };
-  //       },
-
-  //       onDisconnect: async (ctx, code, reason) => {
-  //         // Identify user by connection key to publish leave status
-  //         const connectionKey =
-  //           ctx.connectionParams.connectionId ||
-  //           ctx.extra.request.headers["sec-websocket-key"];
-
-  //         const user = activeUsers.get(connectionKey);
-
-  //         if (user) {
-  //           pubsub.publish("USER_PRESENCE", {
-  //             userPresence: {
-  //               userId: user.id,
-  //               name: user.name,
-  //               status: "LEFT",
-  //             },
-  //           });
-  //           activeUsers.delete(connectionKey);
-  //         }
-  //       },
-  //     },
-  //     wsServer
-  //   );
-
   useServer(
     {
       schema,
+<<<<<<< HEAD
+       context: async () => {
+        const blogDataSource = new BlogDataSource({
+          models: { User, Post, Comment, Message },
+        });
 
+        return {
+          
+          pubsub,
+          dataSources: {
+            blog: blogDataSource,
+          },
+          models: { User, Post, Comment, Message },
+        };
+      },
+=======
+
+>>>>>>> 66a7fd3c874ff8459af5df464732a7eebfddef5e
       onConnect: async (ctx) => {
         const authHeader = ctx.connectionParams?.authorization || "";
         const token = authHeader.split(" ")[1];
@@ -168,7 +123,7 @@ export async function createExpressServer() {
         // Store user in ctx.extra so it's accessible during disconnect
         ctx.extra.user = user;
 
-       await pubsub.publish("USER_PRESENCE", {
+        await pubsub.publish("USER_PRESENCE", {
           userPresence: {
             userId: user.id,
             name: user.name,
@@ -181,16 +136,16 @@ export async function createExpressServer() {
 
       onDisconnect: async (ctx) => {
         const user = ctx.extra?.user;
-        
+
         await pubsub.publish("USER_PRESENCE", {
-            userPresence: {
-                userId: user.id,
-                name: user.name,
-                status: "LEFT",
-            },
+          userPresence: {
+            userId: user.id,
+            name: user.name,
+            status: "LEFT",
+          },
         });
 
-        return {pubsub}
+        return { pubsub };
       },
     },
     wsServer
